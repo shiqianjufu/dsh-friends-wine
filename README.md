@@ -12,7 +12,7 @@ DeepSeek Harness 的整活插件：思考和输出时播放《朋友的酒》，
 
 ## 安装
 
-1. 下载 Releases 中的 `dsh-friends-wine-1.0.0.zip` 并解压。
+1. 下载 Releases 中的 `dsh-friends-wine-1.0.1.zip` 并解压，或直接克隆本仓库。
 2. 在解压目录运行：
 
 ```powershell

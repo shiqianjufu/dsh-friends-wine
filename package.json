@@ -1,0 +1,39 @@
+{
+  "name": "@local/dsh-friends-wine",
+  "version": "1.0.1",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "description": "Plays 朋友的酒 while the agent works and stretches the whole DSH UI, including a native window bounce.",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shiqianjufu/dsh-friends-wine.git"
+  },
+  "homepage": "https://github.com/shiqianjufu/dsh-friends-wine",
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.webp"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "assets/friends-wine.mp3",
+    "assets/window-bounce.ps1",
+    "icon.webp",
+    "locale/*.json",
+    "README.md",
+    "LICENSE",
+    "install.mjs"
+  ],
+  "dsh": {
+    "bundle": { "patch": "./cordis.patch.yml" },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": ["@deepseek-ai/dsh-client-ui-conversation"]
+    }
+  }
+}

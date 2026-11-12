@@ -8,7 +8,7 @@ const AUDIO_ROUTE = '/dsh-friends-wine/audio.mp3';
 const BOUNCE_ROUTE = '/dsh-friends-wine/window-bounce';
 const BOUNCE_SCRIPT = fileURLToPath(new URL('./assets/window-bounce.ps1', import.meta.url));
 
-export const inject = ['webServer'];
+export const inject = ['webServer', 'connection'];
 
 /** The live native-window bounce helper, if one is running. */
 let bounce = null;
@@ -125,6 +125,21 @@ export function apply(ctx) {
     kind: 'exact',
     path: BOUNCE_ROUTE,
     handler(req, res) {
+      const rejection = ctx.connection.requestRejection({ headers: req.headers });
+      if (rejection !== undefined) {
+        res.writeHead(rejection, {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: rejection === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
+            message: '需要有效的 DSH connection 认证',
+          },
+        }));
+        return;
+      }
       if (req.method !== 'POST') {
         res.writeHead(405, { Allow: 'POST' });
         res.end();

@@ -48,9 +48,14 @@ fs.cpSync(HERE, TARGET, {
   },
 });
 log(`已复制到 ${TARGET}`);
+if (!fs.existsSync(path.join(TARGET, 'package.json'))) {
+  console.error('复制后的插件缺少 package.json，安装中止。');
+  process.exit(1);
+}
 
 const pkgPath = path.join(PROFILE, 'package.json');
-const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+// Windows editors and PowerShell often write a UTF-8 BOM; JSON.parse rejects it.
+const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8').replace(/^\uFEFF/u, ''));
 pkg.dependencies = pkg.dependencies || {};
 pkg.dependencies[NAME] = `link:${TARGET.replace(/\\/g, '/')}`;
 pkg.dsh = pkg.dsh || {};
@@ -65,16 +70,10 @@ const modules = path.join(PROFILE, 'node_modules');
 const scope = path.join(modules, '@local');
 fs.mkdirSync(scope, { recursive: true });
 const linkPath = path.join(scope, 'dsh-friends-wine');
-try {
-  const stat = fs.lstatSync(linkPath);
-  if (stat.isSymbolicLink()) fs.unlinkSync(linkPath);
-  else {
-    console.warn(`[friends-wine] ${linkPath} 已存在且不是联接，跳过创建。`);
-    log('安装完成，但 node_modules 联接需要手动处理。');
-    process.exit(1);
-  }
-} catch {
-  /* 不存在 */
+// Remove an old link or a stale/broken junction left by a previous install.
+// rmSync on a junction removes the reparse point without touching its target.
+if (fs.existsSync(linkPath) || fs.lstatSync(linkPath, { throwIfNoEntry: false }) !== undefined) {
+  fs.rmSync(linkPath, { recursive: true, force: true });
 }
 fs.symlinkSync(TARGET, linkPath, 'junction');
 log(`已建立联接：${linkPath}`);

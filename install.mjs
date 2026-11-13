@@ -12,7 +12,8 @@ const PROFILE = process.env.DSH_PROFILE_DIR
     ? path.resolve(process.env.DSH_PROFILE)
     : path.join(DSH_HOME, 'profiles', process.env.DSH_PROFILE || 'desktop');
 
-const NAME = '@local/dsh-friends-wine';
+const NAME = 'dsh-friends-wine';
+const OLD_NAME = '@local/dsh-friends-wine';
 const TARGET = path.join(DSH_HOME, 'plugins', 'dsh-friends-wine');
 
 function log(message) {
@@ -58,18 +59,24 @@ const pkgPath = path.join(PROFILE, 'package.json');
 const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8').replace(/^\uFEFF/u, ''));
 pkg.dependencies = pkg.dependencies || {};
 pkg.dependencies[NAME] = `link:${TARGET.replace(/\\/g, '/')}`;
+delete pkg.dependencies[OLD_NAME];
 pkg.dsh = pkg.dsh || {};
 pkg.dsh.profile = pkg.dsh.profile || {};
-pkg.dsh.profile.bundles = pkg.dsh.profile.bundles || [];
+pkg.dsh.profile.bundles = (pkg.dsh.profile.bundles || []).filter((bundle) => bundle !== OLD_NAME);
 if (!pkg.dsh.profile.bundles.includes(NAME)) pkg.dsh.profile.bundles.push(NAME);
 backup(pkgPath);
 fs.writeFileSync(pkgPath, `${JSON.stringify(pkg, null, 2)}\n`, 'utf8');
 log('已登记依赖与 bundles');
 
 const modules = path.join(PROFILE, 'node_modules');
-const scope = path.join(modules, '@local');
-fs.mkdirSync(scope, { recursive: true });
-const linkPath = path.join(scope, 'dsh-friends-wine');
+fs.mkdirSync(modules, { recursive: true });
+const oldScope = path.join(modules, '@local');
+const oldLink = path.join(oldScope, 'dsh-friends-wine');
+// Migrate the former @local scoped install out of the profile.
+if (fs.existsSync(oldLink) || fs.lstatSync(oldLink, { throwIfNoEntry: false }) !== undefined) {
+  fs.rmSync(oldLink, { recursive: true, force: true });
+}
+const linkPath = path.join(modules, 'dsh-friends-wine');
 // Remove an old link or a stale/broken junction left by a previous install.
 // rmSync on a junction removes the reparse point without touching its target.
 if (fs.existsSync(linkPath) || fs.lstatSync(linkPath, { throwIfNoEntry: false }) !== undefined) {

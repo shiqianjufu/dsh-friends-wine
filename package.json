@@ -1,8 +1,8 @@
 {
-  "name": "@local/dsh-friends-wine",
-  "version": "1.0.2",
-  "private": true,
+  "name": "dsh-friends-wine",
+  "version": "1.0.3",
   "type": "module",
+  "license": "MIT",
   "description": "Plays 朋友的酒 while the agent works and stretches the whole DSH UI, including a native window bounce.",
   "repository": {
     "type": "git",
@@ -24,6 +24,7 @@
     "icon.webp",
     "locale/*.json",
     "README.md",
+    "LICENSE",
     "install.mjs"
   ],
   "dsh": {

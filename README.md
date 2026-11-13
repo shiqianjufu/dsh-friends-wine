@@ -12,7 +12,7 @@ DeepSeek Harness 的整活插件：思考和输出时播放《朋友的酒》，
 
 ## 安装
 
-1. 下载 Releases 中的 `dsh-friends-wine-1.0.1.zip` 并解压。
+1. 下载 Releases 中的 `dsh-friends-wine-1.0.3.zip` 并解压。
 2. 在解压目录运行：
 
 ```powershell
@@ -23,7 +23,7 @@ node install.mjs
 
 3. 完全退出并重启 DeepSeek Harness（不是刷新页面）。
 
-> 需要 DeepSeek Harness Desktop 与 Node.js。窗口弹跳依赖 Windows PowerShell，只在 Windows 生效。
+> 需要 DeepSeek Harness Desktop 与 Node.js。窗口弹跳依赖 Windows PowerShell，只在 Windows 生效。许可证：MIT。
 
 ## 安全
 

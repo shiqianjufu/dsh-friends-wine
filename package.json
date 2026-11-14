@@ -1,9 +1,9 @@
 {
   "name": "dsh-friends-wine",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "type": "module",
   "license": "MIT",
-  "description": "Plays 朋友的酒 while the agent works and stretches the whole DSH UI, including a native window bounce.",
+  "description": "Stretches the whole DSH UI and bounces the native window while the agent works; plays a user-supplied local song, never a bundled recording.",
   "repository": {
     "type": "git",
     "url": "https://github.com/shiqianjufu/dsh-friends-wine.git"
@@ -19,7 +19,6 @@
     "index.js",
     "client.js",
     "cordis.patch.yml",
-    "assets/friends-wine.mp3",
     "assets/window-bounce.ps1",
     "icon.webp",
     "locale/*.json",

@@ -1,6 +1,6 @@
 {
   "meta": {
     "title": "Friends' Wine Stretch",
-    "description": "Plays 朋友的酒 while the agent works, stretches the composer, buttons, sidebar and plugin icons, shortcut keycaps, the sidebar whale and the balance-widget whale, and bounces the DSH window when it is not maximized. The running label becomes 时间来不及了 after the elapsed time."
+    "description": "Plays a user-supplied local song (no audio is bundled), stretches the composer, buttons, sidebar and plugin icons, shortcut keycaps, the sidebar whale and the balance-widget whale, and bounces the DSH window when it is not maximized. The running label becomes 时间来不及了 after the elapsed time."
   }
 }

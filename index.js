@@ -1,14 +1,22 @@
 import { spawn } from 'node:child_process';
-import { createReadStream, statSync, unlinkSync, writeFileSync } from 'node:fs';
-import { tmpdir } from 'node:os';
+import { createReadStream, existsSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
+import { homedir, tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const AUDIO_ROUTE = '/dsh-friends-wine/audio.mp3';
 const BOUNCE_ROUTE = '/dsh-friends-wine/window-bounce';
 const BOUNCE_SCRIPT = fileURLToPath(new URL('./assets/window-bounce.ps1', import.meta.url));
+const USER_AUDIO_DIR = join(homedir(), '.dsh', 'friends-wine');
+const DEFAULT_AUDIO_FILE = join(USER_AUDIO_DIR, 'friends-wine.mp3');
 
 export const inject = ['webServer', 'connection'];
+
+/** The song is supplied by the user, never shipped in the package. */
+function configuredAudioFile() {
+  const fromEnv = String(process.env.DSH_FRIENDS_WINE_AUDIO ?? '').trim();
+  return fromEnv !== '' ? fromEnv : DEFAULT_AUDIO_FILE;
+}
 
 /** The live native-window bounce helper, if one is running. */
 let bounce = null;
@@ -109,12 +117,11 @@ function stopWindowBounce() {
 }
 
 /**
- * Serve the bundled song from the same origin as the page so the Client half
- * can play it without bundling megabytes of base64 into the module.
+ * Serve the user's own song from their local DSH data directory. The package
+ * never contains the copyrighted recording; a missing file yields 404 and the
+ * client simply keeps the visual effects without audio.
  */
 export function apply(ctx) {
-  const audioFile = fileURLToPath(new URL('./assets/friends-wine.mp3', import.meta.url));
-  const audioSize = statSync(audioFile).size;
 
   ctx.effect(() => () => {
     releaseBounceLease();
@@ -163,12 +170,50 @@ export function apply(ctx) {
     kind: 'exact',
     path: AUDIO_ROUTE,
     handler(req, res) {
+      const rejection = ctx.connection.requestRejection({ headers: req.headers });
+      if (rejection !== undefined) {
+        res.writeHead(rejection, {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: rejection === 401 ? 'UNAUTHORIZED' : 'FORBIDDEN',
+            message: '需要有效的 DSH connection 认证',
+          },
+        }));
+        return;
+      }
+
+      const audioFile = configuredAudioFile();
+      let audioSize;
+      try {
+        audioSize = statSync(audioFile).size;
+      } catch {
+        audioSize = 0;
+      }
+      if (!existsSync(audioFile) || audioSize <= 0) {
+        res.writeHead(404, {
+          'content-type': 'application/json; charset=utf-8',
+          'cache-control': 'no-store',
+        });
+        res.end(JSON.stringify({
+          ok: false,
+          error: {
+            code: 'AUDIO_NOT_CONFIGURED',
+            message: '未找到本地歌曲，请把 friends-wine.mp3 放到 ~/.dsh/friends-wine/friends-wine.mp3，或设置 DSH_FRIENDS_WINE_AUDIO 指向你的音频文件。',
+          },
+        }));
+        return;
+      }
+
       if (req.method === 'HEAD') {
         res.writeHead(200, {
           'Content-Type': 'audio/mpeg',
           'Content-Length': audioSize,
           'Accept-Ranges': 'bytes',
-          'Cache-Control': 'public, max-age=86400',
+          'Cache-Control': 'no-store',
         });
         res.end();
         return;
@@ -196,7 +241,7 @@ export function apply(ctx) {
             'Content-Length': end - start + 1,
             'Content-Range': `bytes ${start}-${end}/${audioSize}`,
             'Accept-Ranges': 'bytes',
-            'Cache-Control': 'public, max-age=86400',
+            'Cache-Control': 'no-store',
           });
           createReadStream(audioFile, { start, end }).pipe(res);
           return;
@@ -207,7 +252,7 @@ export function apply(ctx) {
         'Content-Type': 'audio/mpeg',
         'Content-Length': audioSize,
         'Accept-Ranges': 'bytes',
-        'Cache-Control': 'public, max-age=86400',
+        'Cache-Control': 'no-store',
       });
       createReadStream(audioFile).pipe(res);
     },

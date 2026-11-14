@@ -87,3 +87,7 @@ log(`已建立联接：${linkPath}`);
 
 console.log('');
 console.log('安装完成。完全退出并重启 DeepSeek Harness（不是刷新页面）。');
+console.log('');
+console.log('如需音乐，请自备合法音频并放到：');
+console.log(`  ${path.join(DSH_HOME, 'friends-wine', 'friends-wine.mp3')}`);
+console.log('或设置环境变量 DSH_FRIENDS_WINE_AUDIO 指向本地音频文件。');

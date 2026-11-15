@@ -1,0 +1,12 @@
+﻿# Never commit recordings. Users supply their own local audio at runtime.
+*.mp3
+*.wav
+*.m4a
+*.flac
+*.ogg
+*.aac
+*.wma
+
+# Local install/test artifacts
+node_modules/
+.tmp-*

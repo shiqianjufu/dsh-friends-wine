@@ -1,6 +1,6 @@
 {
   "name": "dsh-friends-wine",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "type": "module",
   "license": "MIT",
   "description": "Stretches the whole DSH UI and bounces the native window while the agent works; plays a user-supplied local song, never a bundled recording.",

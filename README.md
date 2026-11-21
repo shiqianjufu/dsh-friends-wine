@@ -12,7 +12,7 @@ DeepSeek Harness 的整活插件：思考和输出时把界面上的输入框、
 
 ## 安装
 
-1. 下载 Releases 中的 `dsh-friends-wine-1.0.4.zip` 并解压。
+1. 下载 Releases 中的 `dsh-friends-wine-1.0.5.zip` 并解压。
 2. 在解压目录运行：
 
 ```powershell
